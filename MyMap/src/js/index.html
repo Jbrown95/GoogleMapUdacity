@@ -1,0 +1,152 @@
+<!-- This is the corresponding "starter code" for 04_Hello Map in Udacity and Google's Maps
+API Course, Lesson 1 -->
+<html>
+ <head>
+ <!-- styles put here, but you can include a CSS file and reference it instead! -->
+   <style type="text/css">
+     html,
+     body { height: 100%; margin: 0; padding: 0; }
+     #map {
+       bottom:0px;
+       height: 100%;
+       left: 362px;
+       position: absolute;
+       right: 0px;
+      }
+      .container {
+        height: 100%;
+        position: relative;
+      }
+
+    .options-box{
+      background: #fff;
+      border: 1px solid #999;
+      border-radius: 3px;
+      height: 100%;
+      line-height: 35px;
+      padding: 10px 10px 30px 10px;
+      text-align: left;
+      width: 340px;
+    }
+
+    #pano {
+      width: 200px;
+      height: 200px;
+    }
+    /* #pano fixed issue */
+    
+   </style>
+ </head>
+ <body>
+   <div class="container">
+     <div class="options-box">
+       <h1>Find you NYC Home</hi>
+       <div>
+         <input id="show-listings" type="button" value="Show Listings">
+         <input id="hide-listings" type="button" value="Hide Listings">
+       </div>
+     </div>
+     <div id="map"></div>
+   </div>
+   <script>
+     var map;
+     var markers = [];
+     function initMap() {
+       // Constructor creates a new map - only center and zoom are required.
+       map = new google.maps.Map(document.getElementById('map'),{
+         center: {lat: 40.7413549, lng: -73.9980244},
+         zoom: 14,
+          styles: [
+          ]
+       });
+
+       var locations = [
+         {title: "Park Ave Penthouse", location: {lat: 40.7713024, lng: -73.9632393}},
+         {title: "Chelsea Loft", location: {lat: 40.7444883, lng: -73.9949465}},
+         {title: "Union Square Open Floor Plan", location: {lat: 40.7347062, lng: -73.9897959}},
+         {title: "East Village Hip Hop", location: {lat: 40.7281777, lng: -73.984377}},
+         {title: "TriBeca Artsy Bachelor Pad", location: {lat: 40.7195264, lng: -74.0089934}},
+         {title: "China Town Homey Space", location: {lat: 40.7180628, lng: -73.9961237}},
+       ];
+
+       var largeInfowindow = new google.maps.InfoWindow();
+       var bounds = new google.maps.LatLngBounds();
+
+       for (var i = 0; i < locations.length; i++) {
+         var position = locations[i].location;
+         var title = locations[i].title;
+         var marker = new google.maps.Marker({
+           position: position,
+           title: title,
+           animation: google.maps.Animation.DROP,
+           id: i
+         });
+         markers.push(marker);
+         bounds.extend(marker.position);
+         marker.addListener('click', function() {
+           populateInfoWindow(this, largeInfowindow)
+         });
+       }
+       document.getElementById('show-listings').addEventListener('click',showListings);
+       document.getElementById('hide-listings').addEventListener('click',hideListings);
+     }
+       function populateInfoWindow(marker, infowindow){
+         if (infowindow.marker != marker) {
+           infowindow.setContent('');
+           infowindow.marker = marker;
+           infowindow.addListener('closeclick',function(){
+             infowindow.marker(null);
+           });
+           var streetViewService = new google.maps.StreetViewService();
+           var radius = 50;
+           function getStreetView(data, status) {
+             if (status == google.maps.StreetViewStatus.OK) {
+               var nearStreetViewLocation = data.location.latLng;
+
+               var heading = google.maps.geometry.spherical.computeHeading(nearStreetViewLocation, marker.position);
+                 infowindow.setContent('<div>' + marker.title + '</div><div id="pano"></div>');
+                 var panoramaOptions = {
+                   position: nearStreetViewLocation,
+                   addressControl: false,
+                  linksControl: false,
+                  zoomControlOptions: {
+                    style: google.maps.ZoomControlStyle.SMALL
+                  },
+                  visible: true,
+                   pov: {
+                     heading: heading,
+                     pitch: 30
+                    }
+                  };
+                  var panorama = new google.maps.StreetViewPanorama(document.getElementById('pano'), panoramaOptions);
+                  } else {
+                    infowindow.setContent('<div>' + marker.title + '</div>' +
+                    '<div>No Street View Found</div>');
+                  }
+                }
+                 streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
+                 infowindow.open(map, marker);
+             }
+           }
+       //end of populateInfoWindow
+       //show Listings
+       function showListings() {
+         var bounds = new google.maps.LatLngBounds();
+         // extend boundries of map for each marker and display the markers
+         for (var i = 0; i < markers.length; i++){
+           markers[i].setMap(map);
+           bounds.extend(markers[i].position);
+         }
+         map.fitBounds(bounds);
+       }
+       function hideListings(){
+         for (var i = 0;i < markers.length; i++){
+           markers[i].setMap(null);
+         }
+       }
+   </script>
+   <script async defer
+          src="https://maps.googleapis.com/maps/api/js?libraries=geometry&key=AIzaSyAZdeOGbsMvI7HmqJXbmPMb4WCxWfWlzIs&v=3&callback=initMap">
+   </script>
+ </body>
+</html>

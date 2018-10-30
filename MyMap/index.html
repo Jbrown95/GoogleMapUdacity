@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="stylesheet" type="text/css" href="src/css/main.css">
+
+</head>
+<body>
+
+  <div id="main" class="container">
+    <div id="map"></div>
+    <!-- SideBar -->
+      <div id="sidebarlist" class="sidebarlist">
+        <h3>My Southwestern Picks</h3>
+        <input class="input_box" placeholder="Where to?" type="text" data-bind="textInput: searchAddress" />
+        <hr>
+        <button class="input_box" type'button' data-bind=''>Clear Markers</button>
+        <hr>
+
+        <ul data-bind='foreach: filteredLocations'>
+          <li data-bind='click: $parent.centerLoc,event: {mouseover: $parent.colorChange}'>
+            <span data-bind='text: title'></span>
+          </li>
+          </ul>
+    </div>
+    <!-- Hamburger Button -->
+    <div class="button" onclick="changeButton(this),toggleNav()">
+      <div class="bar1"></div>
+      <div class="bar2"></div>
+      <div class="bar3"></div>
+    </div>
+
+</div>
+</body>
+
+
+<script type='text/javascript' src='src/js/lib/knockout-3.4.2.js'></script>
+<script type="text/javascript" src='./src/js/data.js'></script>
+<script type="text/javascript" src='./src/js/app.js'></script>
+<script async defer
+    src=
+    "https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyAZdeOGbsMvI7HmqJXbmPMb4WCxWfWlzIs&v=3&callback=initMap">
+</script>
