@@ -32,6 +32,7 @@ var LocationModel = function(data, index){
     title:data.title,
     animation: google.maps.Animation.DROP,
     city:data.city,
+    res_id:data.res_id,
     visible: false
   });
 
@@ -40,9 +41,10 @@ var LocationModel = function(data, index){
     // Check to make sure the infowindow is not already opened on this marker.
     if (infowindow.marker != marker) {
       infowindow.marker = marker;
-      console.log(data)
-
-      infowindow.setContent('<div>' + marker.title + '</div>');
+      var joe = zamato(marker.res_id);
+      console.log(reviews);
+      console.log(data);
+      infowindow.setContent('<div>' + marker.title + '<br />'+ joe + '</div>');
       infowindow.open(map, marker);
       // Make sure the marker property is cleared if the infowindow is closed.
       infowindow.addListener('closeclick', function() {
@@ -142,10 +144,33 @@ var AppViewModel = function(){
  };
  this.colorChange = function(title) {
    self.openLocInfo(title);
-   console.log(title.marker);
  };
 };
+// Zamato api
+function zamato(res_id){
+  reviews=[]
+  url = "https://developers.zomato.com/api/v2.1/reviews?res_id="
+  id = res_id
+  furl = url + id
+fetch(furl, {
+      method: 'GET',
+      headers: {
+        'Accept':'application/json',
+        'user-key': 'b603ad21353b8bb4f20d5e5b346df6dd'
+      },
+    })
+    .then((res) => res.json())
+    .then((resJSON) => {
+      for(i=0;i<resJSON['user_reviews'].length;i++){
+      //console.log('Review' + (i+1) +':' + resJSON['user_reviews'][i]['review']['review_text'])
+      console.log('Review' + (i+1) +':' + resJSON['user_reviews'][i]['review']['review_text'])
+      review = ('Review' + (i+1) +':' + resJSON['user_reviews'][i]['review']['review_text'])
+      reviews.push(review)
+    }
 
+  });
+  return reviews
+};
 // For sidebar
 function toggleNav(){
     navSize = document.getElementById("sidebarlist").style.width;
