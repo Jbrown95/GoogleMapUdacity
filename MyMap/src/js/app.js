@@ -33,27 +33,26 @@ var LocationModel = function(data, index){
     animation: google.maps.Animation.DROP,
     city:data.city,
     res_id:data.res_id,
-    visible: false
+    visible: false,
+    reviews: zo.reviews(data.res_id)
   });
 
 //pupulateinfowindow
-  this.populateInfoWindow = function(marker, infowindow) {
+  this.populateInfoWindow = async function(marker, infowindow) {
     // Check to make sure the infowindow is not already opened on this marker.
     if (infowindow.marker != marker) {
       infowindow.marker = marker;
-      var joe = zamato(marker.res_id);
-      console.log(reviews);
       console.log(data);
-      infowindow.setContent('<div>' + marker.title + '<br />'+ joe + '</div>');
+      var joe = await marker.reviews;
+      console.log(joe.reviews[1].review)
+      infowindow.setContent('<div>' + marker.title + '<br />'+ await joe.reviews[1].review.review_text + '</div>');
       infowindow.open(map, marker);
-      // Make sure the marker property is cleared if the infowindow is closed.
       infowindow.addListener('closeclick', function() {
         infowindow.marker = null;
       });
-    }
   };
   //end populateInfoWindow
-
+};
   //mouseover
   this.marker.addListener('mouseover',function(){
     this.setIcon(self.customMarker);
@@ -146,13 +145,13 @@ var AppViewModel = function(){
    self.openLocInfo(title);
  };
 };
-// Zamato api
-function zamato(res_id){
+// Zamato api-- Not using at the moment.
+async function zamato(res_id){
   reviews=[]
   url = "https://developers.zomato.com/api/v2.1/reviews?res_id="
   id = res_id
   furl = url + id
-fetch(furl, {
+await fetch(furl, {
       method: 'GET',
       headers: {
         'Accept':'application/json',
@@ -163,14 +162,40 @@ fetch(furl, {
     .then((resJSON) => {
       for(i=0;i<resJSON['user_reviews'].length;i++){
       //console.log('Review' + (i+1) +':' + resJSON['user_reviews'][i]['review']['review_text'])
-      console.log('Review' + (i+1) +':' + resJSON['user_reviews'][i]['review']['review_text'])
-      review = ('Review' + (i+1) +':' + resJSON['user_reviews'][i]['review']['review_text'])
-      reviews.push(review)
+      var review = ('Review' + (i+1) +':' + resJSON['user_reviews'][i]['review']['review_text'])
+      return console.log(review)
+      return ('Review' + (i+1) +':' + resJSON['user_reviews'][i]['review']['review_text'])
     }
 
   });
-  return reviews
 };
+//new class to try async
+class ZOMATO {
+  constructor() {
+    this.api = "b603ad21353b8bb4f20d5e5b346df6dd";
+    this.header = {
+      method: "GET",
+      headers: {
+        "user-key": this.api,
+        "Content-Type": "application/json"
+      },
+      credentials: "same-origin"
+    };
+  }
+  async reviews(res_id){
+    //review url
+    const resURL = "https://developers.zomato.com/api/v2.1/reviews?res_id="
+    // url data
+    const resReview = await fetch(resURL+res_id,this.header);
+    const reviewJSON = await resReview.json();
+    const reviews = await reviewJSON.user_reviews;
+    return {
+      reviews
+    }
+  }
+};
+//for marker
+zo = new ZOMATO()
 // For sidebar
 function toggleNav(){
     navSize = document.getElementById("sidebarlist").style.width;
