@@ -1,0 +1,9 @@
+MAC/Linux
+"git clone [clone url]"
+"cd GoogleMapUdacity/MyMap"
+"open index.html"
+
+Windows(Go get a MAC, or install ANY linux flavor)
+Download zip.
+Extract "MyMap" from zip to Desktop(Or anywhere else really)
+Open "index.html"
